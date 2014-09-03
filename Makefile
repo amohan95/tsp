@@ -3,15 +3,18 @@ LDIR = lib
 ODIR = obj
 SDIR = src
 TDIR = test
-INCLUDE += -Isrc
+CAIROINCLUDE = $(shell pkg-config --cflags --libs cairomm-1.0)
+INCLUDE += -Isrc $(CAIROINCLUDE)
 
 CXX=g++
 CXXFLAGS=-Wall -g -std=c++11 -Wextra -pthread
 
 COMPILE_OBJ = $(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
+
 MKDIR = if [ ! -d "$(shell dirname $@)" ]; then mkdir -p $(shell dirname $@); fi
 
 SRCS = $(SDIR)/graph/graph.cc \
+			 $(SDIR)/graphics/image_generator.cc \
 			 $(SDIR)/solve/bellman_held_karp.cc \
 			 $(SDIR)/solve/brute_force_search.cc \
 			 $(SDIR)/solve/nearest_neighbor_search.cc \
@@ -32,7 +35,7 @@ SRCS = $(SDIR)/graph/graph.cc \
 
 OBJS = $(patsubst $(SDIR)%.cc, $(ODIR)%.o, $(SRCS))
 
-all: $(BDIR)/parse_tsp $(BDIR)/solve_tsp
+all: $(BDIR)/parse_tsp $(BDIR)/solve_tsp $(BDIR)/generate_tsp $(BDIR)/simulate_tsp
 
 tests: $(BDIR)/tsp_distance_calc_test $(BDIR)/tsp_solution_test
 
@@ -43,10 +46,16 @@ test: tests
 ## Distributed Executables
 
 $(BDIR)/parse_tsp: $(OBJS) $(SDIR)/parse_tsp.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@ $(CAIROINCLUDE)
 
 $(BDIR)/solve_tsp: $(OBJS) $(SDIR)/solve_tsp.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@ $(CAIROINCLUDE)
+
+$(BDIR)/generate_tsp: $(OBJS) $(SDIR)/generate_tsp.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@ $(CAIROINCLUDE)
+
+$(BDIR)/simulate_tsp: $(OBJS) $(SDIR)/simulate_tsp.cc
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@ $(CAIROINCLUDE)
 
 ###
 
